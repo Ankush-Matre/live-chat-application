@@ -1,12 +1,27 @@
-import { useState } from "react";
-import "../styles/login.css";
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import '../styles/login.css';
+
 function Login() {
 
-    const [username, setUsername] = useState("");
+    const [username, setUsername] = useState('');
+
+    const navigate = useNavigate();
 
     const handleJoin = () => {
-        console.log(username);
+
+        if (username.trim() === '') {
+            alert('Please enter a username');
+            return;
+        }
+
+        navigate('/chat', {
+            state: {
+                username: username
+            }
+        });
     };
+
     return (
         <div className="login-container">
 

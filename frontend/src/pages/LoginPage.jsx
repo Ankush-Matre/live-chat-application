@@ -1,11 +1,7 @@
-import Login from "../components/Login.jsx";
+import Login from '../components/Login';
 
 function LoginPage() {
-    return (
-        <>
-            <Login />
-        </>
-    );
+    return <Login />;
 }
 
 export default LoginPage;
