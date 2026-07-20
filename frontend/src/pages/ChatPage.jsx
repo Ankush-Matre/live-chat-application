@@ -1,4 +1,6 @@
+import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import { connectWebSocket, disconnectWebSocket } from '../services/websocket';
 
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
@@ -12,6 +14,23 @@ function ChatPage() {
     const location = useLocation();
 
     const username = location.state?.username || 'Guest';
+    const [messages, setMessages] = useState([]);
+
+    useEffect(() => {
+
+        connectWebSocket((newMessage) => {
+
+            setMessages((prevMessages) => [
+                ...prevMessages,
+                newMessage
+            ]);
+        });
+
+        return () => {
+            disconnectWebSocket();
+        };
+
+    }, []);
 
     return (
         <div className="chat-page">
@@ -24,9 +43,12 @@ function ChatPage() {
 
                 <div className="chat-main">
 
-                    <ChatWindow username={username} />
+                    <ChatWindow
+                        username={username}
+                        messages={messages}
+                    />
 
-                    <MessageInput />
+                    <MessageInput username={username} />
 
                 </div>
 

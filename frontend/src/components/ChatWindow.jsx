@@ -1,25 +1,22 @@
 import Message from './Message';
 
-function ChatWindow({ username }) {
-
-    const messages = [
-        { sender: 'Rahul', content: 'Hey Ankush 👋', own: false },
-        { sender: username, content: 'Hi! React routing is working.', own: true },
-        { sender: 'Priya', content: 'Nice UI so far!', own: false }
-    ];
-
+function ChatWindow({ username, messages }) {
     return (
         <div className="chat-window">
-
-            {messages.map((msg, index) => (
-                <Message
-                    key={index}
-                    sender={msg.sender}
-                    content={msg.content}
-                    own={msg.own}
-                />
-            ))}
-
+            {messages.length === 0 ? (
+                <div style={{ color: '#6b7280' }}>
+                    No messages yet. Send your first message 🚀
+                </div>
+            ) : (
+                messages.map((msg, index) => (
+                    <Message
+                        key={index}
+                        sender={msg.sender}
+                        content={msg.content}
+                        own={msg.sender === username}
+                    />
+                ))
+            )}
         </div>
     );
 }
