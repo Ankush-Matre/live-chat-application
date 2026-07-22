@@ -4,7 +4,7 @@ function ChatWindow({ username, messages }) {
     return (
         <div className="chat-window">
             {messages.length === 0 ? (
-                <div style={{ color: '#6b7280' }}>
+                <div style={{ color: 'var(--text-secondary)' }}>
                     No messages yet. Send your first message 🚀
                 </div>
             ) : (
@@ -14,6 +14,7 @@ function ChatWindow({ username, messages }) {
                         sender={msg.sender}
                         content={msg.content}
                         own={msg.sender === username}
+                        type={msg.type}
                     />
                 ))
             )}

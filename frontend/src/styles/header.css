@@ -1,7 +1,7 @@
 .header{
     height:72px;
-    background:#2563eb;
-    color:white;
+    background:var(--bg-header);
+    color:var(--text-header);
     display:flex;
     align-items:center;
     justify-content:space-between;
@@ -14,10 +14,46 @@
     font-weight:700;
 }
 
+.header-right{
+    display:flex;
+    align-items:center;
+    gap:20px;
+}
+
 .header-user{
     font-size:16px;
 }
 
 .header-user span{
     font-weight:700;
+}
+
+.theme-toggle{
+    background:rgba(255,255,255,0.15);
+    border:none;
+    border-radius:10px;
+    padding:8px 14px;
+    color:white;
+    cursor:pointer;
+    font-size:18px;
+    transition:background .2s;
+}
+
+.theme-toggle:hover{
+    background:rgba(255,255,255,0.28);
+}
+
+.leave-button{
+    background:#ef4444;
+    border:none;
+    border-radius:10px;
+    padding:8px 16px;
+    color:white;
+    cursor:pointer;
+    font-weight:600;
+    transition:background .2s;
+}
+
+.leave-button:hover{
+    background:#dc2626;
 }

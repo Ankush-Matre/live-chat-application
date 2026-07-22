@@ -2,23 +2,26 @@ package com.codeForLearn.live_chat_application.controller;
 
 import com.codeForLearn.live_chat_application.model.ChatMessage;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
-public class chatController {
-
-    @GetMapping("/")
-    public String getChatMessage() {
-        return "chat";
-    }
+public class ChatController {
 
     @MessageMapping("/chat")
     @SendTo("/topic/messages")
-    public ChatMessage receiveMessage(ChatMessage message){
+    public ChatMessage receiveMessage(@Payload ChatMessage message) {
         return message;
     }
 
+    @MessageMapping("/addUser")
+    @SendTo("/topic/messages")
+    public ChatMessage addUser(@Payload ChatMessage message, SimpMessageHeaderAccessor headerAccessor) {
 
+        headerAccessor.getSessionAttributes().put("username", message.getSender());
+
+        return message;
+    }
 }

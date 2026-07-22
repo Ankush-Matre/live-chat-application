@@ -1,6 +1,11 @@
 import { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
-import { connectWebSocket, disconnectWebSocket } from '../services/websocket';
+import { useLocation, useNavigate } from 'react-router-dom';
+import {
+    connectWebSocket,
+    disconnectWebSocket,
+    sendJoinMessage,
+    sendLeaveMessage
+} from '../services/websocket';
 
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
@@ -12,34 +17,62 @@ import '../styles/chat.css';
 function ChatPage() {
 
     const location = useLocation();
+    const navigate = useNavigate();
 
     const username = location.state?.username || 'Guest';
+
     const [messages, setMessages] = useState([]);
+    const [onlineUsers, setOnlineUsers] = useState([]);
 
     useEffect(() => {
 
-        connectWebSocket((newMessage) => {
+        const handleMessage = (newMessage) => {
 
-            setMessages((prevMessages) => [
-                ...prevMessages,
-                newMessage
-            ]);
-        });
+            setMessages((prevMessages) => [...prevMessages, newMessage]);
+
+            if (newMessage.type === 'JOIN') {
+                setOnlineUsers((prevUsers) => {
+                    if (prevUsers.includes(newMessage.sender)) {
+                        return prevUsers;
+                    }
+                    return [...prevUsers, newMessage.sender];
+                });
+            }
+
+            if (newMessage.type === 'LEAVE') {
+                setOnlineUsers((prevUsers) =>
+                    prevUsers.filter((user) => user !== newMessage.sender)
+                );
+            }
+        };
+
+        const handleConnected = () => {
+            sendJoinMessage(username);
+        };
+
+        connectWebSocket(handleMessage, handleConnected);
 
         return () => {
+            sendLeaveMessage(username);
             disconnectWebSocket();
         };
 
     }, []);
 
+    const handleLeaveChat = () => {
+        sendLeaveMessage(username);
+        disconnectWebSocket();
+        navigate('/');
+    };
+
     return (
         <div className="chat-page">
 
-            <Header username={username} />
+            <Header username={username} onLeave={handleLeaveChat} />
 
             <div className="chat-layout">
 
-                <Sidebar />
+                <Sidebar onlineUsers={onlineUsers} />
 
                 <div className="chat-main">
 

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTheme } from '../context/ThemeContext';
 import '../styles/login.css';
 
 function Login() {
@@ -7,6 +8,7 @@ function Login() {
     const [username, setUsername] = useState('');
 
     const navigate = useNavigate();
+    const { theme, toggleTheme } = useTheme();
 
     const handleJoin = () => {
 
@@ -25,6 +27,10 @@ function Login() {
     return (
         <div className="login-container">
 
+            <button className="theme-toggle-floating" onClick={toggleTheme}>
+                {theme === 'light' ? '🌙' : '☀️'}
+            </button>
+
             <div className="login-card">
 
                 <h1>💬 Live Chat</h1>
@@ -36,6 +42,11 @@ function Login() {
                     placeholder="Enter Username"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                            handleJoin();
+                        }
+                    }}
                 />
 
                 <button onClick={handleJoin}>

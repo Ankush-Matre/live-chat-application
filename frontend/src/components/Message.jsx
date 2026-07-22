@@ -1,4 +1,12 @@
-function Message({ sender, content, own }) {
+function Message({ sender, content, own, type }) {
+
+    if (type === 'JOIN' || type === 'LEAVE') {
+        return (
+            <div className="system-message">
+                {content}
+            </div>
+        );
+    }
 
     return (
         <div className={`message ${own ? 'own' : 'other'}`}>

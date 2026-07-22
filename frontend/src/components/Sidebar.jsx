@@ -1,25 +1,22 @@
-function Sidebar() {
-
-    const users = ['Ankush', 'Rahul', 'Priya', 'Amit'];
+function Sidebar({ onlineUsers }) {
 
     return (
         <aside className="sidebar">
 
-            <h3>Online Users</h3>
+            <h3>Online Users ({onlineUsers.length})</h3>
 
             <ul className="user-list">
 
-                {users.map((user, index) => (
-
-                    <li key={index} className="user-item">
-
-                        <span className="online-dot"></span>
-
-                        {user}
-
-                    </li>
-
-                ))}
+                {onlineUsers.length === 0 ? (
+                    <li className="no-users">No users online</li>
+                ) : (
+                    onlineUsers.map((user, index) => (
+                        <li key={index} className="user-item">
+                            <span className="online-dot"></span>
+                            {user}
+                        </li>
+                    ))
+                )}
 
             </ul>
 
