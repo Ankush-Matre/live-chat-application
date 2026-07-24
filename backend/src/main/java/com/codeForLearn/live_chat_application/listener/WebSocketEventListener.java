@@ -1,6 +1,6 @@
 package com.codeForLearn.live_chat_application.listener;
 
-import com.codeForLearn.live_chat_application.model.ChatMessage;
+import com.codeForLearn.live_chat_application.dto.ChatMessageDTO;
 import com.codeForLearn.live_chat_application.model.MessageType;
 import org.springframework.context.ApplicationListener;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
@@ -20,16 +20,20 @@ public class WebSocketEventListener implements ApplicationListener<SessionDiscon
     @Override
     public void onApplicationEvent(SessionDisconnectEvent event) {
 
-        SimpMessageHeaderAccessor headerAccessor = SimpMessageHeaderAccessor.wrap(event.getMessage());
+        SimpMessageHeaderAccessor headerAccessor =
+                SimpMessageHeaderAccessor.wrap(event.getMessage());
 
-        String username = (String) headerAccessor.getSessionAttributes().get("username");
+        String username =
+                (String) headerAccessor.getSessionAttributes().get("username");
 
         if (username != null) {
 
-            ChatMessage leaveMessage = new ChatMessage();
-            leaveMessage.setSender(username);
-            leaveMessage.setType(MessageType.LEAVE);
-            leaveMessage.setContent(username + " has left the chat");
+            ChatMessageDTO leaveMessage = ChatMessageDTO.builder()
+                    .sender(username)
+                    .content(username + " has left the chat")
+                    .type(MessageType.LEAVE)
+                    .timeStamp(java.time.LocalDateTime.now().toString())
+                    .build();
 
             messagingTemplate.convertAndSend("/topic/messages", leaveMessage);
         }

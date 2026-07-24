@@ -1,6 +1,6 @@
 package com.codeForLearn.live_chat_application.controller;
 
-import com.codeForLearn.live_chat_application.model.ChatMessage;
+import com.codeForLearn.live_chat_application.dto.ChatMessageDTO;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
@@ -12,15 +12,18 @@ public class ChatController {
 
     @MessageMapping("/chat")
     @SendTo("/topic/messages")
-    public ChatMessage receiveMessage(@Payload ChatMessage message) {
+    public ChatMessageDTO receiveMessage(@Payload ChatMessageDTO message) {
         return message;
     }
 
     @MessageMapping("/addUser")
     @SendTo("/topic/messages")
-    public ChatMessage addUser(@Payload ChatMessage message, SimpMessageHeaderAccessor headerAccessor) {
+    public ChatMessageDTO addUser(
+            @Payload ChatMessageDTO message,
+            SimpMessageHeaderAccessor headerAccessor) {
 
-        headerAccessor.getSessionAttributes().put("username", message.getSender());
+        headerAccessor.getSessionAttributes()
+                .put("username", message.getSender());
 
         return message;
     }
