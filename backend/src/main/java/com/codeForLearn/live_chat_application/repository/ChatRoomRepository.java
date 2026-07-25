@@ -5,8 +5,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
+/**
+ * Repository for ChatRoom entity.
+ */
 public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
 
+    /**
+     * Finds chat room by its name.
+     */
     Optional<ChatRoom> findByRoomName(String roomName);
 
 }
