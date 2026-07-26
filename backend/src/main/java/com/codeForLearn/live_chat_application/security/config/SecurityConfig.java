@@ -1,5 +1,8 @@
 package com.codeForLearn.live_chat_application.security.config;
 
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import com.codeForLearn.live_chat_application.security.jwt.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -7,70 +10,82 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 
 /**
- * ===========================================================
+ * ============================================================
  * Security Configuration
+ * ------------------------------------------------------------
+ * Configures Spring Security for the application.
  *
- * This class configures Spring Security for our application.
+ * Current Configuration:
+ * - Disable CSRF
+ * - Allow public authentication APIs
+ * - Require authentication for all other APIs
  *
- * Current Features:
- * ✔ Disable CSRF
- * ✔ Disable Spring Default Login Page
- * ✔ Allow Authentication APIs
- * ✔ Allow WebSocket Connections
- *
- * Future:
- * ✔ JWT Authentication
- * ✔ Role Based Authorization
- * ===========================================================
+ * NOTE:
+ * JWT Filter will be integrated in the next step.
+ * ============================================================
  */
 @Configuration
 public class SecurityConfig {
 
+    /**
+     * JWT Authentication Filter.
+     */
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    /**
+     * Constructor Injection.
+     */
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+    }
+
+    /**
+     * ============================================================
+     * Security Filter Chain
+     *
+     * Configures Spring Security.
+     *
+     * Responsibilities:
+     * 1. Disable CSRF
+     * 2. Make application Stateless
+     * 3. Allow Authentication APIs
+     * 4. Protect Remaining APIs
+     * 5. Register JWT Filter
+     * ============================================================
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http)
             throws Exception {
 
         http
 
-                /*
-                 * Disable CSRF because we are building REST APIs.
-                 */
+                // Disable CSRF
                 .csrf(csrf -> csrf.disable())
 
-                /*
-                 * Configure URL authorization.
-                 */
+                // JWT applications should be Stateless
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(
+                                SessionCreationPolicy.STATELESS))
+
+                // Configure authorization rules
                 .authorizeHttpRequests(auth -> auth
 
-                        /*
-                         * Public Authentication APIs
-                         */
-                        .requestMatchers("/api/auth/**")
-                        .permitAll()
+                        // Public APIs
+                        .requestMatchers(
+                                "/api/auth/**",
+                                "/ws/**",
+                                "/ws-endpoints/**"
+                        ).permitAll()
 
-                        /*
-                         * WebSocket Endpoint
-                         */
-                        .requestMatchers("/ws-endpoints/**")
-                        .permitAll()
-
-                        /*
-                         * Allow every other request for now.
-                         * Later we will secure them using JWT.
-                         */
-                        .anyRequest()
-                        .permitAll()
+                        // Protected APIs
+                        .anyRequest().authenticated()
                 )
 
-                /*
-                 * Disable Spring's Default Login Page
-                 */
-                .formLogin(form -> form.disable())
-
-                /*
-                 * Disable HTTP Basic Authentication
-                 */
-                .httpBasic(Customizer.withDefaults());
+                // Register JWT Filter before UsernamePasswordAuthenticationFilter
+                .addFilterBefore(
+                        jwtAuthenticationFilter,
+                        UsernamePasswordAuthenticationFilter.class
+                );
 
         return http.build();
     }

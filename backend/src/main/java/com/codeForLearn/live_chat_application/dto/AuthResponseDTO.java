@@ -9,15 +9,22 @@ import lombok.NoArgsConstructor;
  * ============================================================
  * AuthResponseDTO
  * ------------------------------------------------------------
- * Returned after successful authentication.
+ * Standard response returned after authentication operations.
  *
- * Currently we are returning only a success message.
+ * Used for:
+ * - User Registration
+ * - User Login
  *
- * Later this class will also contain:
+ * During Registration:
+ * - message
+ *
+ * During Login:
+ * - message
  * - JWT Token
- * - Username
- * - User Role
- * - Token Expiry
+ * - username
+ *
+ * (More fields like role, expiry, refresh token can be
+ * added later.)
  * ============================================================
  */
 
@@ -31,5 +38,17 @@ public class AuthResponseDTO {
      * Response message.
      */
     private String message;
+
+    /**
+     * JWT Token.
+     * Null during registration.
+     */
+    private String token;
+
+    /**
+     * Logged-in username.
+     * Null during registration.
+     */
+    private String username;
 
 }

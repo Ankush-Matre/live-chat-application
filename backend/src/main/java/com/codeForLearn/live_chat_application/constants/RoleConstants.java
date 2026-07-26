@@ -22,7 +22,7 @@ public final class RoleConstants {
     public static final String USER = "ROLE_USER";
 
     /**
-     * Administrator.
+     * Administrator.a
      */
     public static final String ADMIN = "ROLE_ADMIN";
 }
