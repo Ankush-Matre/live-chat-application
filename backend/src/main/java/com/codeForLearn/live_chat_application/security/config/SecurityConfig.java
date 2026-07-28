@@ -73,6 +73,7 @@ public class SecurityConfig {
                         // Public APIs
                         .requestMatchers(
                                 "/api/auth/**",
+                                "/api/test/public",
                                 "/ws/**",
                                 "/ws-endpoints/**"
                         ).permitAll()

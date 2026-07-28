@@ -9,6 +9,7 @@ import com.codeForLearn.live_chat_application.repository.ChatMessageRepository;
 import com.codeForLearn.live_chat_application.repository.ChatRoomRepository;
 import com.codeForLearn.live_chat_application.repository.UserRepository;
 import com.codeForLearn.live_chat_application.service.ChatService;
+import com.codeForLearn.live_chat_application.security.util.SecurityUtils;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -41,17 +42,20 @@ public class ChatServiceImpl implements ChatService {
     public ChatMessageDTO saveMessage(ChatMessageDTO messageDTO) {
 
 
+
          // step 1 : Find existing user
+        String username = SecurityUtils.getCurrentUsername();
+        System.out.println("Current Username = " + username);
         User sender = userRepository
-                .findByUsername(messageDTO.getSender())
+                .findByUsername(username)
                 .orElse(null);
 
-
+        System.out.println("Sender = " + sender);
          //STEP 2 : Create user if not found
         if (sender == null) {
 
             sender = User.builder()
-                    .username(messageDTO.getSender())
+                    .username(username)
                     .build();
 
             sender = userRepository.save(sender);

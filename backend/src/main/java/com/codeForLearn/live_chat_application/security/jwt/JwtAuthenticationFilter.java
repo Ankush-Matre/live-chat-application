@@ -70,6 +70,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
          */
         final String authHeader = request.getHeader("Authorization");
 
+        System.out.println("Authorization Header: " + authHeader);
+
         /*
          * Skip if header is missing.
          */
@@ -88,6 +90,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
          */
         String username = jwtService.extractUsername(jwtToken);
 
+        System.out.println("Username from JWT: " + username);
+
         /*
          * Authenticate only if user is not already authenticated.
          */
@@ -100,6 +104,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             UserDetails userDetails =
                     userDetailsService.loadUserByUsername(username);
 
+            System.out.println("Database User: " + userDetails.getUsername());
+            System.out.println("Authorities: " + userDetails.getAuthorities());
+
+            System.out.println(
+                    "Token Valid: "
+                            + jwtService.isTokenValid(jwtToken, userDetails.getUsername())
+            );
             /*
              * Validate JWT.
              */
@@ -131,6 +142,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                  */
                 SecurityContextHolder.getContext()
                         .setAuthentication(authenticationToken);
+
+                System.out.println("Authentication Stored Successfully");
             }
         }
 
