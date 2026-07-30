@@ -1,5 +1,7 @@
 package com.codeForLearn.live_chat_application.service.impl;
 
+import java.util.List;
+import java.util.stream.Collectors;
 import com.codeForLearn.live_chat_application.dto.ChatMessageDTO;
 import com.codeForLearn.live_chat_application.entity.ChatMessage;
 import com.codeForLearn.live_chat_application.entity.ChatRoom;
@@ -9,7 +11,6 @@ import com.codeForLearn.live_chat_application.repository.ChatMessageRepository;
 import com.codeForLearn.live_chat_application.repository.ChatRoomRepository;
 import com.codeForLearn.live_chat_application.repository.UserRepository;
 import com.codeForLearn.live_chat_application.service.ChatService;
-import com.codeForLearn.live_chat_application.security.util.SecurityUtils;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -41,33 +42,33 @@ public class ChatServiceImpl implements ChatService {
     @Override
     public ChatMessageDTO saveMessage(ChatMessageDTO messageDTO) {
 
+        // ============================================================
+        // STEP 1 : Get sender username from incoming message
+        // ============================================================
+        String username = messageDTO.getSender();
 
-
-         // step 1 : Find existing user
-        String username = SecurityUtils.getCurrentUsername();
         System.out.println("Current Username = " + username);
+
+        // ============================================================
+        // STEP 2 : Find existing user
+        // ============================================================
         User sender = userRepository
                 .findByUsername(username)
-                .orElse(null);
+                .orElseThrow(() ->
+                        new RuntimeException("User not found: " + username));
 
-        System.out.println("Sender = " + sender);
-         //STEP 2 : Create user if not found
-        if (sender == null) {
+        System.out.println("Sender = " + sender.getUsername());
 
-            sender = User.builder()
-                    .username(username)
-                    .build();
-
-            sender = userRepository.save(sender);
-        }
-
-
-        //Step 3 : find general chat room
+        // ============================================================
+        // STEP 3 : Find General Chat Room
+        // ============================================================
         ChatRoom room = chatRoomRepository
                 .findByRoomName("General")
                 .orElse(null);
 
-        //STEP 4 : Create room if it doesn't exist
+        // ============================================================
+        // STEP 4 : Create Room if it doesn't exist
+        // ============================================================
         if (room == null) {
 
             room = ChatRoom.builder()
@@ -77,17 +78,46 @@ public class ChatServiceImpl implements ChatService {
             room = chatRoomRepository.save(room);
         }
 
-        // STEP 5 : Convert DTO into Entity
+        // ============================================================
+        // STEP 5 : Convert DTO to Entity
+        // ============================================================
         ChatMessage chatMessage = chatMessageMapper.toEntity(messageDTO);
 
-        // STEP 6 : Set Entity Relationships
+        // ============================================================
+        // STEP 6 : Set Relationships
+        // ============================================================
         chatMessage.setSender(sender);
         chatMessage.setChatRoom(room);
 
-        // STEP 7 : Save into Database
+        // ============================================================
+        // STEP 7 : Save Message
+        // ============================================================
         ChatMessage savedMessage = chatMessageRepository.save(chatMessage);
 
-        // STEP 8 : Convert Entity back into DTO
+        // ============================================================
+        // STEP 8 : Convert Entity back to DTO
+        // ============================================================
         return chatMessageMapper.toDTO(savedMessage);
+    }
+
+    /**
+     * ============================================================
+     * Load Complete Chat History
+     *
+     * Retrieves all chat messages from the database,
+     * converts them into DTOs and returns them.
+     * ============================================================
+     */
+    @Override
+    public List<ChatMessageDTO> getChatHistory() {
+
+        // STEP 1 : Fetch all messages from database
+        List<ChatMessage> messages =
+                chatMessageRepository.findAllByOrderByTimeStampAsc();
+
+        // STEP 2 : Convert Entity List into DTO List
+        return messages.stream()
+                .map(chatMessageMapper::toDTO)
+                .collect(Collectors.toList());
     }
 }

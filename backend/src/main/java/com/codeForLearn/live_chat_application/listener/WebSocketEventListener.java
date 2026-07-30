@@ -1,41 +1,79 @@
 package com.codeForLearn.live_chat_application.listener;
 
-import com.codeForLearn.live_chat_application.dto.ChatMessageDTO;
-import com.codeForLearn.live_chat_application.model.MessageType;
-import org.springframework.context.ApplicationListener;
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
+import com.codeForLearn.live_chat_application.service.online.OnlineUserService;
+
+import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 @Component
-public class WebSocketEventListener implements ApplicationListener<SessionDisconnectEvent> {
+public class WebSocketEventListener {
 
+    private final OnlineUserService onlineUserService;
     private final SimpMessagingTemplate messagingTemplate;
 
-    public WebSocketEventListener(SimpMessagingTemplate messagingTemplate) {
+    public WebSocketEventListener(
+            OnlineUserService onlineUserService,
+            SimpMessagingTemplate messagingTemplate) {
+
+        this.onlineUserService = onlineUserService;
         this.messagingTemplate = messagingTemplate;
     }
 
-    @Override
-    public void onApplicationEvent(SessionDisconnectEvent event) {
+    /**
+     * ============================================================
+     * Detect WebSocket Disconnect
+     * ============================================================
+     */
+    @EventListener
+    public void handleWebSocketDisconnectListener(
+            SessionDisconnectEvent event) {
 
-        SimpMessageHeaderAccessor headerAccessor =
-                SimpMessageHeaderAccessor.wrap(event.getMessage());
+        StompHeaderAccessor accessor =
+                StompHeaderAccessor.wrap(event.getMessage());
 
-        String username =
-                (String) headerAccessor.getSessionAttributes().get("username");
+        /*
+         * Get username stored inside WebSocket session.
+         */
+        String username = null;
 
+        if (accessor.getSessionAttributes() != null) {
+
+            username = (String) accessor
+                    .getSessionAttributes()
+                    .get("username");
+        }
+
+        /*
+         * Remove user if username exists.
+         */
         if (username != null) {
 
-            ChatMessageDTO leaveMessage = ChatMessageDTO.builder()
-                    .sender(username)
-                    .content(username + " has left the chat")
-                    .type(MessageType.LEAVE)
-                    .timeStamp(java.time.LocalDateTime.now().toString())
-                    .build();
+            onlineUserService.removeUser(username);
 
-            messagingTemplate.convertAndSend("/topic/messages", leaveMessage);
+            /*
+             * Broadcast updated online users.
+             */
+            messagingTemplate.convertAndSend(
+                    "/topic/online-users",
+                    onlineUserService.getOnlineUsers()
+            );
+
+            System.out.println(
+                    "WebSocket Disconnected : " + username
+            );
+
+            System.out.println(
+                    "Online Users : "
+                            + onlineUserService.getOnlineUsers()
+            );
+
+            System.out.println(
+                    "Online Count : "
+                            + onlineUserService.getOnlineUserCount()
+            );
         }
     }
 }

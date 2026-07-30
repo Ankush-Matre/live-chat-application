@@ -5,10 +5,16 @@ const WS_ENDPOINT = import.meta.env.VITE_WS_ENDPOINT;
 const TOPIC_MESSAGES = import.meta.env.VITE_TOPIC_MESSAGES;
 const APP_CHAT = import.meta.env.VITE_APP_CHAT;
 const APP_ADD_USER = import.meta.env.VITE_APP_ADD_USER;
+const TOPIC_ONLINE_USERS = import.meta.env.VITE_TOPIC_ONLINE_USERS;
+const APP_LEAVE_USER = import.meta.env.VITE_APP_LEAVE_USER;
 
 let stompClient = null;
 
-export const connectWebSocket = (onMessageReceived, onConnected) => {
+export const connectWebSocket = (
+    onMessageReceived,
+    onConnected,
+    onOnlineUsersReceived
+) => {
 
     stompClient = new Client({
 
@@ -20,11 +26,24 @@ export const connectWebSocket = (onMessageReceived, onConnected) => {
 
             console.log('Connected to Spring Boot WebSocket');
 
+            // Subscribe to chat messages
             stompClient.subscribe(TOPIC_MESSAGES, (message) => {
 
                 const receivedMessage = JSON.parse(message.body);
 
                 onMessageReceived(receivedMessage);
+            });
+
+            // Subscribe to online users
+            stompClient.subscribe(TOPIC_ONLINE_USERS, (message) => {
+
+                const onlineUsers = JSON.parse(message.body);
+
+                console.log("Online Users Received:", onlineUsers);
+
+                if (onOnlineUsersReceived) {
+                    onOnlineUsersReceived(onlineUsers);
+                }
             });
 
             if (onConnected) {
@@ -82,7 +101,7 @@ export const sendLeaveMessage = (username) => {
     if (stompClient && stompClient.connected) {
 
         stompClient.publish({
-            destination: APP_CHAT,
+            destination: APP_LEAVE_USER,
             body: JSON.stringify({
                 sender: username,
                 content: username + ' has left the chat',
@@ -90,6 +109,12 @@ export const sendLeaveMessage = (username) => {
                 timeStamp: new Date().toISOString()
             })
         });
+
+    } else {
+
+        console.warn(
+            'STOMP client not connected. Leave message not sent.'
+        );
     }
 };
 

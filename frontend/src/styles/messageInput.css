@@ -1,0 +1,131 @@
+/* ============================================================
+   MESSAGE INPUT AREA
+   ============================================================ */
+
+.message-input-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    width: 100%;
+    padding: 14px 18px;
+
+    background: var(--bg-card);
+    border-top: 1px solid var(--border-color);
+}
+
+
+/* ============================================================
+   INPUT
+   ============================================================ */
+
+.message-input {
+    flex: 1;
+
+    height: 52px;
+
+    padding: 0 18px;
+
+    border: 1px solid var(--input-border);
+    border-radius: 26px;
+
+    background: var(--bg-input);
+    color: var(--text-primary);
+
+    font-size: 15px;
+
+    outline: none;
+
+    transition: all 0.2s ease;
+}
+
+
+.message-input::placeholder {
+    color: var(--text-secondary);
+}
+
+
+.message-input:focus {
+    border-color: var(--accent);
+
+    box-shadow:
+            0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+
+/* ============================================================
+   SEND BUTTON
+   ============================================================ */
+
+.send-button {
+    height: 52px;
+    min-width: 100px;
+
+    padding: 0 22px;
+
+    border: none;
+    border-radius: 26px;
+
+    background: var(--accent);
+    color: white;
+
+    font-size: 15px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+            background 0.2s ease,
+            transform 0.15s ease,
+            box-shadow 0.2s ease;
+}
+
+
+.send-button:hover {
+    background: var(--accent-hover);
+
+    transform: translateY(-1px);
+
+    box-shadow:
+            0 4px 12px rgba(37, 99, 235, 0.25);
+}
+
+
+.send-button:active {
+    transform: translateY(0);
+}
+
+
+.send-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+
+/* ============================================================
+   MOBILE
+   ============================================================ */
+
+@media (max-width: 600px) {
+
+    .message-input-container {
+        padding: 10px;
+        gap: 8px;
+    }
+
+    .message-input {
+        height: 46px;
+        font-size: 14px;
+    }
+
+    .send-button {
+        height: 46px;
+        min-width: 75px;
+
+        padding: 0 16px;
+
+        font-size: 14px;
+    }
+}

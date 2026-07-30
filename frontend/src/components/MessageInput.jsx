@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { sendWebSocketMessage } from '../services/websocket';
+import '../styles/messageInput.css';
 
 function MessageInput({ username }) {
 
@@ -7,39 +8,45 @@ function MessageInput({ username }) {
 
     const handleSend = () => {
 
-        if (message.trim() === '') return;
+        if (!message.trim()) {
+            return;
+        }
 
-        const payload = {
+        sendWebSocketMessage({
             sender: username,
-            content: message,
+            content: message.trim(),
             type: 'CHAT',
             timeStamp: new Date().toISOString()
-        };
-
-        sendWebSocketMessage(payload);
+        });
 
         setMessage('');
     };
+
+
+    const handleKeyDown = (event) => {
+
+        if (event.key === 'Enter') {
+            handleSend();
+        }
+    };
+
 
     return (
         <div className="message-input-container">
 
             <input
+                className="message-input"
                 type="text"
                 placeholder="Type a message..."
-                className="message-input"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                        handleSend();
-                    }
-                }}
+                onKeyDown={handleKeyDown}
             />
 
             <button
                 className="send-button"
                 onClick={handleSend}
+                disabled={!message.trim()}
             >
                 Send
             </button>

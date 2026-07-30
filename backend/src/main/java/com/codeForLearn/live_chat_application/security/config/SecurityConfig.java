@@ -58,7 +58,7 @@ public class SecurityConfig {
             throws Exception {
 
         http
-
+                .cors(Customizer.withDefaults())
                 // Disable CSRF
                 .csrf(csrf -> csrf.disable())
 

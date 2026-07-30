@@ -1,33 +1,54 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
+import { login } from '../services/authService';
 import '../styles/login.css';
 
 function Login() {
 
     const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
 
     const navigate = useNavigate();
     const { theme, toggleTheme } = useTheme();
 
-    const handleJoin = () => {
+    const handleJoin = async () => {
 
-        if (username.trim() === '') {
-            alert('Please enter a username');
+        if (!username.trim() || !password.trim()) {
+            alert("Please enter username and password");
             return;
         }
 
-        navigate('/chat', {
-            state: {
-                username: username
-            }
-        });
+        try {
+
+            const response = await login(username, password);
+
+            // Save JWT Token
+            localStorage.setItem("token", response.token);
+
+            // Navigate to Chat Page
+            navigate('/chat', {
+                state: {
+                    username: response.username
+                }
+            });
+
+        } catch (error) {
+
+            alert("Invalid Username or Password");
+            console.error(error);
+
+        }
     };
 
     return (
+
         <div className="login-container">
 
-            <button className="theme-toggle-floating" onClick={toggleTheme}>
+            <button
+                className="theme-toggle-floating"
+                onClick={toggleTheme}
+            >
                 {theme === 'light' ? '🌙' : '☀️'}
             </button>
 
@@ -39,9 +60,16 @@ function Login() {
 
                 <input
                     type="text"
-                    placeholder="Enter Username"
+                    placeholder="Username"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
+                />
+
+                <input
+                    type="password"
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     onKeyDown={(e) => {
                         if (e.key === 'Enter') {
                             handleJoin();
@@ -50,12 +78,21 @@ function Login() {
                 />
 
                 <button onClick={handleJoin}>
-                    Join Chat
+                    Login
                 </button>
+
+                {/* Signup Link */}
+                <p style={{ marginTop: "20px" }}>
+                    Don't have an account?{" "}
+                    <Link to="/signup">
+                        Sign Up
+                    </Link>
+                </p>
 
             </div>
 
         </div>
+
     );
 }
 
