@@ -1,6 +1,10 @@
 import Message from './Message';
 
-function ChatWindow({ username, messages }) {
+function ChatWindow({
+                        username,
+                        messages,
+                        typingUser
+                    }) {
 
     return (
 
@@ -26,6 +30,16 @@ function ChatWindow({ username, messages }) {
                     />
 
                 ))
+            )}
+
+            {/* Typing Indicator */}
+
+            {typingUser && (
+
+                <div className="typing-indicator">
+                    {typingUser} is typing...
+                </div>
+
             )}
 
         </div>

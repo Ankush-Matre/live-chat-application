@@ -8,8 +8,6 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.messaging.simp.config.MessageBrokerRegistry;
-import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.stereotype.Controller;
 
@@ -22,8 +20,11 @@ public class ChatController {
 
 
     /*
-     * Constructor Injection
+     * ============================================================
+     * CONSTRUCTOR INJECTION
+     * ============================================================
      */
+
     public ChatController(
             ChatService chatService,
             OnlineUserService onlineUserService,
@@ -120,6 +121,40 @@ public class ChatController {
 
     /*
      * ============================================================
+     * TYPING INDICATOR
+     * ============================================================
+     *
+     * React sends:
+     *
+     * /app/typing
+     *
+     * Example:
+     *
+     * {
+     *     "sender": "rahul",
+     *     "typing": true
+     * }
+     *
+     * Spring Boot broadcasts:
+     *
+     * /topic/typing
+     *
+     * ============================================================
+     */
+
+    @MessageMapping("/typing")
+    public void typing(
+            @Payload TypingMessage typingMessage) {
+
+        messagingTemplate.convertAndSend(
+                "/topic/typing",
+                typingMessage
+        );
+    }
+
+
+    /*
+     * ============================================================
      * BROADCAST ONLINE USERS
      * ============================================================
      */
@@ -130,5 +165,43 @@ public class ChatController {
                 "/topic/online-users",
                 onlineUserService.getOnlineUsers()
         );
+    }
+
+
+    /*
+     * ============================================================
+     * TYPING MESSAGE CLASS
+     * ============================================================
+     */
+
+    public static class TypingMessage {
+
+        private String sender;
+
+        private boolean typing;
+
+
+        public TypingMessage() {
+        }
+
+
+        public String getSender() {
+            return sender;
+        }
+
+
+        public void setSender(String sender) {
+            this.sender = sender;
+        }
+
+
+        public boolean isTyping() {
+            return typing;
+        }
+
+
+        public void setTyping(boolean typing) {
+            this.typing = typing;
+        }
     }
 }

@@ -27,9 +27,27 @@ function ChatPage() {
 
     const [messages, setMessages] = useState([]);
     const [onlineUsers, setOnlineUsers] = useState([]);
+    const [typingUser, setTypingUser] = useState('');
+
 
 
     useEffect(() => {
+
+        const handleTyping = (typingData) => {
+
+            if (typingData.sender === username) {
+                return;
+            }
+
+            if (typingData.typing) {
+
+                setTypingUser(typingData.sender);
+
+            } else {
+
+                setTypingUser('');
+            }
+        };
 
         /*
          * ============================================================
@@ -195,7 +213,8 @@ function ChatPage() {
         connectWebSocket(
             handleMessage,
             handleConnected,
-            handleOnlineUsers
+            handleOnlineUsers,
+            handleTyping
         );
 
 
@@ -230,13 +249,6 @@ function ChatPage() {
         navigate('/');
     };
 
-
-    /*
-     * ============================================================
-     * UI
-     * ============================================================
-     */
-
     return (
 
         <div className="chat-page">
@@ -257,6 +269,7 @@ function ChatPage() {
                     <ChatWindow
                         username={username}
                         messages={messages}
+                        typingUser={typingUser}
                     />
 
                     <MessageInput
